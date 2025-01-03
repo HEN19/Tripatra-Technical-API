@@ -1,17 +1,19 @@
 package model
 
-import "database/sql"
+import (
+	"time"
+)
 
-type UserModel struct {
-	ID        sql.NullInt64
-	Username  sql.NullString
-	Password  sql.NullString
-	FirstName sql.NullString
-	LastName  sql.NullString
-	Gender    sql.NullString
-	Telephone sql.NullString
-	Email     sql.NullString
-	Address   sql.NullString
-	CreatedAt sql.NullString
-	UpdatedAt sql.NullString
+type User struct {
+	ID        int64    `bson:"_id,omitempty" json:"id"`
+	Username  string    `bson:"username" json:"username"`
+	Password  string    `bson:"password" json:"password"`
+	FirstName string    `bson:"first_name" json:"firstName"`
+	LastName  string    `bson:"last_name" json:"lastName"`
+	Gender    string    `bson:"gender" json:"gender"`
+	Phone     string    `bson:"phone" json:"phone"`
+	Email     string    `bson:"email" json:"email"`
+	Address   string    `bson:"address" json:"address"`
+	CreatedAt time.Time `bson:"created_at" json:"createdAt"`
+	UpdatedAt time.Time `bson:"updated_at" json:"updatedAt"`
 }

@@ -28,10 +28,10 @@ func GetUserProfile(c *gin.Context) (err error) {
 
 	// Connect to the database
 	db := config.Connect()
-	defer db.Close()
+	defer db.Disconnect(nil)
 
 	// Get user profile from the DAO layer using the decoded user ID
-	user, err := dao.UserDAO.GetUserProfile(db, claims.Id)
+	user, err := dao.UserDAO.GetUserProfile(claims.Id)
 	if err != nil {
 		out.ResponseOut(c, nil, false, constanta.CodeInternalServerErrorResponse, constanta.ErrorInternalDB)
 		return
@@ -46,15 +46,15 @@ func GetUserProfile(c *gin.Context) (err error) {
 }
 
 // convertRepoToDTOID converts the UserModel to a UserRequest DTO for response.
-func convertRepoToDTOID(datas model.UserModel) out.UserRequest {
+func convertRepoToDTOID(datas model.User) out.UserRequest {
 	return out.UserRequest{
-		FirstName: datas.FirstName.String,
-		LastName:  datas.LastName.String,
-		Email:     datas.Email.String,
-		Address:   datas.Address.String,
-		Gender:    datas.Gender.String,
-		Telephone: datas.Telephone.String,
-		CreatedAt: datas.CreatedAt.String,
-		UpdatedAt: datas.UpdatedAt.String,
+		FirstName: datas.FirstName,
+		LastName:  datas.LastName,
+		Email:     datas.Email,
+		Address:   datas.Address,
+		Gender:    datas.Gender,
+		Telephone: datas.Phone,
+		CreatedAt: datas.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: datas.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }

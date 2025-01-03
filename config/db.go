@@ -1,73 +1,40 @@
 package config
 
 import (
-	"database/sql"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"context"
 	"log"
-	"os"
+	"time"
 
-	"github.com/api-skeleton/model"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	migrate "github.com/rubenv/sql-migrate"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Connect() (db *sql.DB) {
-	var (
-		config model.Config
-	)
+var MongoClient *mongo.Client
 
-	file, err := os.Open("config/config.json")
+func Connect() *mongo.Client {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017") // MongoDB connection URI
+	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to create MongoDB client: %v", err)
 	}
 
-	defer file.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	// Read the configuration file
-	data, err := ioutil.ReadAll(file)
+	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 
-	// Parse the JSON configuration
-	err = json.Unmarshal(data, &config)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Build the DSN for PostgreSQL
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		config.User, config.Password, config.Host, config.Port, config.DBName)
-
-	// Open the database connection
-	db, err = sql.Open("pgx", dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Test the connection
-	if err := db.Ping(); err != nil {
-		log.Fatal("Failed to connect to PostgreSQL:", err)
-	}
-
-	fmt.Println("Successfully connected to PostgreSQL!")
-	return db
+	// Assign to global MongoClient for reuse
+	MongoClient = client
+	log.Println("Connected to MongoDB!")
+	return client
 }
 
-func MigrateDB() {
-	db := Connect()
-	// Load migration files
-	migrations := &migrate.FileMigrationSource{
-		Dir: "migrations", // Directory where the migration files are located
+func GetMongoCollection(dbName, collectionName string) *mongo.Collection {
+	if MongoClient == nil {
+		log.Fatal("MongoDB client is not initialized. Call Connect() first.")
 	}
-
-	// Apply the migrations
-	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
-	if err != nil {
-		log.Fatal("Failed to apply migrations:", err)
-	}
-
-	fmt.Printf("Applied %d migrations!\n", n)
+	return MongoClient.Database(dbName).Collection(collectionName)
 }

@@ -9,11 +9,11 @@ import (
 
 func main() {
 	//connect DB
-	db := config.Connect()
-	defer db.Close()
+	client := config.Connect()
+	defer client.Disconnect(nil)
 
 	// migrate DB
-	config.MigrateDB()
+	// config.MigrateDB()
 
 	// routes controller
 	controller := routes.Controller()

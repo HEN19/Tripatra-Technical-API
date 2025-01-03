@@ -1,10 +1,14 @@
 package dao
 
 import (
-	"database/sql"
-	"fmt"
+	"context"
+	"errors"
+	"time"
 
+	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/model"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type userDAO struct {
@@ -19,68 +23,72 @@ func (input userDAO) New() (output userDAO) {
 	return
 }
 
-func (input userDAO) InsertUser(db *sql.DB, inputStruct model.UserModel) (err error) {
-	var (
-		query string
-	)
+func (u userDAO) InsertUser(inputStruct model.User) error {
+	collection := config.GetMongoCollection("mydatabase", "users")
 
-	query = fmt.Sprintf(
-		`
-			INSERT INTO %s
-				(username, password, first_name, last_name, gender, phone, email, address)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-		`, input.TableName,
-	)
-
-	params := []interface{}{
-		inputStruct.Username.String, inputStruct.Password.String, inputStruct.FirstName.String,
-		inputStruct.LastName.String, inputStruct.Gender.String, inputStruct.Telephone.String,
-		inputStruct.Email.String, inputStruct.Address.String,
+	user := bson.M{
+		"username":   inputStruct.Username,
+		"password":   inputStruct.Password,
+		"first_name": inputStruct.FirstName,
+		"last_name":  inputStruct.LastName,
+		"gender":     inputStruct.Gender,
+		"phone":      inputStruct.Phone,
+		"email":      inputStruct.Email,
+		"address":    inputStruct.Address,
+		"created_at": time.Now(),
+		"updated_at": time.Now(),
 	}
 
-	_, err = db.Exec(query, params...)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
-
-	return
+	return nil
 }
 
-func (input userDAO) LoginCheck(db *sql.DB, user model.UserModel) (result model.UserModel, err error) {
-	query := "SELECT id, username, first_name, last_name " +
-		" FROM " + input.TableName +
-		" WHERE username = $1 AND password = $2 "
+func (u userDAO) LoginCheck(user model.User) (model.User, error) {
+	collection := config.GetMongoCollection("mydatabase", "users")
 
-	param := []interface{}{user.Username.String, user.Password.String}
-
-	results := db.QueryRow(query, param...)
-	dbError := results.Scan(&result.ID, &result.Username, &result.FirstName, &result.LastName)
-
-	if dbError != nil && dbError.Error() != "sql: no rows in result set" {
-		err = dbError
-		return
+	// Filter for matching username and password
+	filter := bson.M{
+		"username": user.Username,
+		"password": user.Password,
 	}
 
-	return
+	var result model.User
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.User{}, errors.New("invalid username or password")
+		}
+		return model.User{}, err
+	}
+
+	return result, nil
 }
 
-func (input userDAO) GetUserProfile(db *sql.DB, id int64) (model.UserModel, error) {
-	query := "SELECT first_name, last_name, gender, phone, email, address, created_at, updated_at " +
-		"FROM " + input.TableName + " WHERE id = $1"
+func (u userDAO) GetUserProfile(id int64) (model.User, error) {
+	collection := config.GetMongoCollection("mydatabase", "users")
 
-	row := db.QueryRow(query, id)
-	var user model.UserModel
+	filter := bson.M{"_id": id}
 
-	err := row.Scan(&user.FirstName, &user.LastName,
-		&user.Gender, &user.Telephone, &user.Email, &user.Address,
-		&user.CreatedAt, &user.UpdatedAt,
-	)
+	var user model.User
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return user, nil
+		if err == mongo.ErrNoDocuments {
+			return user, errors.New("user not found")
 		}
 		return user, err
 	}
+
 	return user, nil
 }
