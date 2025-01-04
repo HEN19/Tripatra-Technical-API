@@ -40,7 +40,7 @@ func LoginService(c *gin.Context) (err error) {
 		return
 	}
 
-	if user.ID == 0 {
+	if user.ID == "" {
 		c.JSON(constanta.CodeBadRequestResponse, constanta.ErrorDataUnknown)
 		return
 	}

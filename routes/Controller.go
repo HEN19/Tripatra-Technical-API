@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/endpoint"
 	"github.com/gin-gonic/gin"
 )
@@ -13,20 +14,20 @@ func Controller() *gin.Engine {
 	// user.HandleFunc("/login", endpoint.LoginEndpoint).Methods("POST", "OPTIONS")
 	routes := gin.Default()
 
-	user := routes.Group("v1/user")
+	user := routes.Group("/v1/user")
 	{
 		user.POST("/register", endpoint.RegistrationEndpoint)
 		user.POST("/login", endpoint.LoginEndpoint)
 		user.GET("/profile", endpoint.UserWithParamEndpoint)
 	}
 
-	product := routes.Group("v1/product")
+	product := routes.Group("/v1/product")
 	{
-		product.POST("/", endpoint.ProductEndpointWithoutParam)
-		product.GET("/", endpoint.ProductEndpointWithoutParam)
-		product.GET("/:id", endpoint.ProductEndpointWithParam)
-		product.PUT("/:id", endpoint.ProductEndpointWithParam)
-		product.DELETE("/:id", endpoint.ProductEndpointWithParam)
+		product.POST("", config.AuthMiddleware(), endpoint.ProductEndpointWithoutParam)
+		product.GET("", config.AuthMiddleware(), endpoint.ProductEndpointWithoutParam)
+		product.GET("/:id", config.AuthMiddleware(), endpoint.ProductEndpointWithParam)
+		product.PUT("/:id", config.AuthMiddleware(), endpoint.ProductEndpointWithParam)
+		product.DELETE("/:id", config.AuthMiddleware(), endpoint.ProductEndpointWithParam)
 	}
 
 	// user := routes.PathPrefix("/user").Subrouter()

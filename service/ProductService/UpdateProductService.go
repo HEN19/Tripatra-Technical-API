@@ -1,8 +1,6 @@
 package service
 
 import (
-	"strconv"
-
 	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/constanta"
 	"github.com/api-skeleton/constanta/ErrorModel"
@@ -16,17 +14,12 @@ func (input productService) UpdateProductService(c *gin.Context) (err error) {
 	db := config.Connect()
 	defer db.Disconnect(nil)
 
-	idProduct, errParse := strconv.ParseInt(id, 10, 64)
-	if errParse != nil {
-		return errParse
-	}
-
 	productRequest, err := input.ReadBody(c)
 	if err != nil {
 		return err
 	}
 
-	productRequest.ID = idProduct
+	productRequest.ID = id
 
 	reqBody := mapToProduct(productRequest)
 
