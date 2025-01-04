@@ -1,13 +1,7 @@
 package routes
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/99designs/gqlgen/graphql/graphql"
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/api-skeleton/endpoint"
-	"github.com/api-skeleton/graph"
 	"github.com/gin-gonic/gin"
 )
 
