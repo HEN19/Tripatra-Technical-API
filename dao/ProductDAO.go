@@ -115,9 +115,8 @@ func (p productDAO) UpdateProduct(inputStruct model.Product) (*mongo.UpdateResul
 	return result, nil
 }
 
-func (p productDAO) DeleteProduct(id string) (*mongo.DeleteResult, error) {
+func (p productDAO) DeleteProduct(id string) (*mongo.UpdateResult, error) {
 	collection := config.GetMongoCollection("tripatra", "products")
-
 
 	objectID, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"id": objectID, "deleted": false}
