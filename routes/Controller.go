@@ -35,21 +35,6 @@ func Controller() *gin.Engine {
 		product.DELETE("/{id}", endpoint.ProductEndpointWithParam)
 	}
 
-	schema, err := graphql.NewSchema(graphql.SchemaConfig{
-		Query:    graph.NewQueryResolver(),
-		Mutation: graph.NewMutationResolver(),
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create GraphQL handler
-	graphQLHandler := handler.New(&handler.Config{
-		Schema: &schema,
-	})
-
-	// Set up HTTP routes
-	http.Handle("/graphql", graphQLHandler)
 	// user := routes.PathPrefix("/user").Subrouter()
 	// user.HandleFunc("/register", endpoint.RegistrationEndpoint).Methods("POST", "OPTIONS")
 	// user.HandleFunc("/login", endpoint.LoginEndpoint).Methods("POST", "OPTIONS")
