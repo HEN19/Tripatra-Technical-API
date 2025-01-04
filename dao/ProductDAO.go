@@ -50,8 +50,10 @@ func (p productDAO) GetListProduct() ([]model.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	filter := bson.M{"deleted": false}
+
 	var products []model.Product
-	cursor, err := collection.Find(ctx, bson.M{})
+	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (p productDAO) GetListProduct() ([]model.Product, error) {
 func (p productDAO) GetDetailProduct(id int64) (model.Product, error) {
 	collection := config.GetMongoCollection("mydatabase", "products")
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"id": id, "deleted": false}
 
 	var product model.Product
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -112,7 +114,7 @@ func (p productDAO) UpdateProduct(inputStruct model.Product) (*mongo.UpdateResul
 func (p productDAO) DeleteProduct(id int64) (*mongo.DeleteResult, error) {
 	collection := config.GetMongoCollection("mydatabase", "products")
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"id": id, "deleted": false}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
