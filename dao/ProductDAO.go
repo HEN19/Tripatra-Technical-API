@@ -118,13 +118,16 @@ func (p productDAO) UpdateProduct(inputStruct model.Product) (*mongo.UpdateResul
 func (p productDAO) DeleteProduct(id string) (*mongo.DeleteResult, error) {
 	collection := config.GetMongoCollection("tripatra", "products")
 
+
 	objectID, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"id": objectID, "deleted": false}
+
+	product := bson.M{"$set": bson.M{"deleted": true}}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := collection.DeleteOne(ctx, filter)
+	result, err := collection.UpdateOne(ctx, filter, product)
 	if err != nil {
 		return nil, err
 	}
