@@ -12,8 +12,6 @@ func main() {
 	client := config.Connect()
 	defer client.Disconnect(nil)
 
-	// migrate DB
-	// config.MigrateDB()
 
 	// routes controller
 	controller := routes.Controller()

@@ -23,7 +23,7 @@ func (input userDAO) New() (output userDAO) {
 	return
 }
 
-func (u userDAO) InsertUser(inputStruct model.User) error {
+func (u userDAO) InsertUser(inputStruct model.User) (*mongo.InsertOneResult, error) {
 	collection := config.GetMongoCollection("mydatabase", "users")
 
 	user := bson.M{
@@ -42,11 +42,12 @@ func (u userDAO) InsertUser(inputStruct model.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := collection.InsertOne(ctx, user)
+	id, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return id, nil
 }
 
 func (u userDAO) LoginCheck(user model.User) (model.User, error) {

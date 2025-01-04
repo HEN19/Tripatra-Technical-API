@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var jwtKey = []byte("API-")
+var jwtKey = []byte("API-Products-")
 
 type Claims struct {
 	Id       int64  `json:"id"`

@@ -1,7 +1,4 @@
 {
-  "user": "postgres",
-  "password": "postgres",
   "host": "localhost",
-  "port": "5432",
-  "dbname": "api_skeleton"
+  "port": "27017"
 }

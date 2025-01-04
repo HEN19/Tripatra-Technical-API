@@ -33,7 +33,7 @@ func UserRegistration(c *gin.Context) {
 	db := config.Connect()
 	defer db.Disconnect(nil)
 
-	err = dao.UserDAO.InsertUser(reqBody)
+	_, err = dao.UserDAO.InsertUser(reqBody)
 	if err != nil {
 		c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, err.Error()))
 		return
