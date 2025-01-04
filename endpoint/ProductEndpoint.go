@@ -1,33 +1,33 @@
 package endpoint
 
 import (
+	service "github.com/api-skeleton/service/ProductService"
 	"github.com/gin-gonic/gin"
 )
 
 func ProductEndpointWithoutParam(c *gin.Context) {
 	switch c.Request.Method {
 	case "POST":
-		// UserService.InsertProduct(response, request)
+		service.ProductService.InsertProductService(c)
 		break
 	case "GET":
-		// UserService.GetListProduct(response, request)
+		service.ProductService.GetListProductService(c)
 		break
 	}
-	
-}
 
+}
 
 func ProductEndpointWithParam(c *gin.Context) {
 	switch c.Request.Method {
-	case "POST":
-		// UserService.InsertProduct(response, request)
+	case "PUT":
+		service.ProductService.UpdateProductService(c)
 		break
 	case "GET":
-		// UserService.GetListProduct(response, request)
+		service.ProductService.GetDetailProductService(c)
 		break
 	case "DELETE":
-		// UserService.DeleteProduct(response, request)
+		service.ProductService.DeleteProductService(c)
 		break
 	}
-	
+
 }

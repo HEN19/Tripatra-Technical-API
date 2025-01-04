@@ -9,4 +9,5 @@ type Product struct {
 	Stock     int64     `bsom:"product_stock json:"product_stock"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
+	Deleted   bool      `bson:"deleted" json:"deleted"`
 }

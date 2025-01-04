@@ -24,9 +24,9 @@ func Controller() *gin.Engine {
 	{
 		product.POST("/", endpoint.ProductEndpointWithoutParam)
 		product.GET("/", endpoint.ProductEndpointWithoutParam)
-		product.GET("/{id}", endpoint.ProductEndpointWithParam)
-		product.PUT("/{id}", endpoint.ProductEndpointWithParam)
-		product.DELETE("/{id}", endpoint.ProductEndpointWithParam)
+		product.GET("/:id", endpoint.ProductEndpointWithParam)
+		product.PUT("/:id", endpoint.ProductEndpointWithParam)
+		product.DELETE("/:id", endpoint.ProductEndpointWithParam)
 	}
 
 	// user := routes.PathPrefix("/user").Subrouter()
