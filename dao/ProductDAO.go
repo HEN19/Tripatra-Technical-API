@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/api-skeleton/config"
@@ -31,7 +30,7 @@ func (p productDAO) InsertProduct(inputStruct model.Product) (*mongo.InsertOneRe
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	id, err := collection.InsertOne(ctx, product))
+	id, err := collection.InsertOne(ctx, product)
 	if err != nil {
 		return nil, err
 	}
