@@ -23,12 +23,6 @@ func LoginService(c *gin.Context) (err error) {
 	// Get user request body from Gin context
 	userBody, err := utils.GetUserBody(c)
 
-	errValidation := userBody.ValidationRegistration(c)
-	if errValidation.Code != constanta.CodeSuccessResponse {
-		c.JSON(errValidation.Code, errValidation)
-		return
-	}
-
 	userRepo := mapToUser(userBody)
 
 	db := config.Connect()

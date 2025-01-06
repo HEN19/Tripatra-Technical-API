@@ -12,7 +12,6 @@ func main() {
 	client := config.Connect()
 	defer client.Disconnect(nil)
 
-
 	// routes controller
 	controller := routes.Controller()
 

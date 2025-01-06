@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/constanta"
-	"github.com/api-skeleton/constanta/ErrorModel"
 	"github.com/api-skeleton/dao"
+	"github.com/api-skeleton/dto/out"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,11 +25,11 @@ func (input productService) UpdateProductService(c *gin.Context) (err error) {
 
 	product, err := dao.ProductDAO.UpdateProduct(reqBody)
 	if err != nil {
-		c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, err.Error()))
+		out.ResponseOut(c, err, false, constanta.CodeInternalServerErrorResponse, constanta.ErrorInternalDB)
 		return
 	}
 
-	c.JSON(constanta.CodeSuccessResponse, product)
+	out.ResponseOut(c, product, false, constanta.CodeSuccessResponse, constanta.SuccessEditData)
 
 	return
 

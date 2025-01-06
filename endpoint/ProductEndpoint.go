@@ -6,6 +6,7 @@ import (
 )
 
 func ProductEndpointWithoutParam(c *gin.Context) {
+	c.Header("Allow", "POST, GET, OPTIONS")
 	switch c.Request.Method {
 	case "POST":
 		service.ProductService.InsertProductService(c)
@@ -18,6 +19,7 @@ func ProductEndpointWithoutParam(c *gin.Context) {
 }
 
 func ProductEndpointWithParam(c *gin.Context) {
+	c.Header("Allow", "PUT, GET, DELETE, OPTIONS")
 	switch c.Request.Method {
 	case "PUT":
 		service.ProductService.UpdateProductService(c)
