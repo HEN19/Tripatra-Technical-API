@@ -96,3 +96,34 @@ func (u userDAO) GetUserProfile(id string) (model.User, error) {
 
 	return user, nil
 }
+
+func (u userDAO) UpdateUserProfile(inputStruct model.User) (*mongo.UpdateResult, error) {
+	collection := config.GetMongoCollection("tripatra", "users")
+
+	objectID, _ := primitive.ObjectIDFromHex(inputStruct.ID)
+	filter := bson.M{"_id": objectID}
+
+	userModel := bson.M{
+		"$set": bson.M{
+			"first_name": inputStruct.FirstName,
+			"last_name":  inputStruct.LastName,
+			"gender":     inputStruct.Gender,
+			"phone":      inputStruct.Phone,
+			"email":      inputStruct.Email,
+			"address":    inputStruct.Address,
+			"updated_at": time.Now(),
+		}}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	id, err := collection.UpdateOne(ctx, filter, userModel)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return id, errors.New("user not found")
+		}
+		return id, err
+	}
+
+	return id, nil
+}

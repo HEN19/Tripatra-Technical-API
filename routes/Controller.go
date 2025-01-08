@@ -32,6 +32,7 @@ func Controller() *gin.Engine {
 		user.POST("/register", endpoint.RegistrationEndpoint)
 		user.POST("/login", endpoint.LoginEndpoint)
 		user.GET("/profile", endpoint.UserWithParamEndpoint)
+		user.PUT("/profile", endpoint.UserWithParamEndpoint)
 
 		//CORS
 		user.OPTIONS("/register", func(c *gin.Context) {

@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/api-skeleton/config"
@@ -77,6 +78,7 @@ func (p productDAO) GetDetailProduct(id string) (model.Product, error) {
 	objectID, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"id": objectID, "deleted": false}
 
+	fmt.Println(filter)
 	var product model.Product
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -119,9 +121,13 @@ func (p productDAO) DeleteProduct(id string) (*mongo.UpdateResult, error) {
 	collection := config.GetMongoCollection("tripatra", "products")
 
 	objectID, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.M{"id": objectID, "deleted": false}
+	filter := bson.M{"id": objectID}
 
-	product := bson.M{"$set": bson.M{"deleted": true}}
+	product := bson.M{
+		"$set": bson.M{
+			"deleted":    true,
+			"updated_at": time.Now(),
+		}}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
