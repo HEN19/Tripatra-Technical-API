@@ -1,8 +1,6 @@
 package service
 
 import (
-	"strconv"
-
 	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/constanta"
 	"github.com/api-skeleton/constanta/ErrorModel"
@@ -16,12 +14,7 @@ func (input productService) GetDetailProductService(c *gin.Context) (err error) 
 	db := config.Connect()
 	defer db.Disconnect(nil)
 
-	idProduct, errParse := strconv.ParseInt(id, 10, 64)
-	if errParse != nil {
-		return errParse
-	}
-
-	product, err := dao.ProductDAO.GetDetailProduct(idProduct)
+	product, err := dao.ProductDAO.GetDetailProduct(id)
 	if err != nil {
 		c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, err.Error()))
 		return

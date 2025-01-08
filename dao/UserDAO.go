@@ -8,6 +8,7 @@ import (
 	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,7 +25,7 @@ func (input userDAO) New() (output userDAO) {
 }
 
 func (u userDAO) InsertUser(inputStruct model.User) (*mongo.InsertOneResult, error) {
-	collection := config.GetMongoCollection("mydatabase", "users")
+	collection := config.GetMongoCollection("tripatra", "users")
 
 	user := bson.M{
 		"username":   inputStruct.Username,
@@ -37,6 +38,7 @@ func (u userDAO) InsertUser(inputStruct model.User) (*mongo.InsertOneResult, err
 		"address":    inputStruct.Address,
 		"created_at": time.Now(),
 		"updated_at": time.Now(),
+		"deleted":    false,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -51,7 +53,7 @@ func (u userDAO) InsertUser(inputStruct model.User) (*mongo.InsertOneResult, err
 }
 
 func (u userDAO) LoginCheck(user model.User) (model.User, error) {
-	collection := config.GetMongoCollection("mydatabase", "users")
+	collection := config.GetMongoCollection("tripatra", "users")
 
 	// Filter for matching username and password
 	filter := bson.M{
@@ -74,10 +76,11 @@ func (u userDAO) LoginCheck(user model.User) (model.User, error) {
 	return result, nil
 }
 
-func (u userDAO) GetUserProfile(id int64) (model.User, error) {
-	collection := config.GetMongoCollection("mydatabase", "users")
+func (u userDAO) GetUserProfile(id string) (model.User, error) {
+	collection := config.GetMongoCollection("tripatra", "users")
 
-	filter := bson.M{"_id": id}
+	objectID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": objectID}
 
 	var user model.User
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -92,4 +95,35 @@ func (u userDAO) GetUserProfile(id int64) (model.User, error) {
 	}
 
 	return user, nil
+}
+
+func (u userDAO) UpdateUserProfile(inputStruct model.User) (*mongo.UpdateResult, error) {
+	collection := config.GetMongoCollection("tripatra", "users")
+
+	objectID, _ := primitive.ObjectIDFromHex(inputStruct.ID)
+	filter := bson.M{"_id": objectID}
+
+	userModel := bson.M{
+		"$set": bson.M{
+			"first_name": inputStruct.FirstName,
+			"last_name":  inputStruct.LastName,
+			"gender":     inputStruct.Gender,
+			"phone":      inputStruct.Phone,
+			"email":      inputStruct.Email,
+			"address":    inputStruct.Address,
+			"updated_at": time.Now(),
+		}}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	id, err := collection.UpdateOne(ctx, filter, userModel)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return id, errors.New("user not found")
+		}
+		return id, err
+	}
+
+	return id, nil
 }

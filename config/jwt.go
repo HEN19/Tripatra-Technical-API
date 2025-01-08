@@ -14,7 +14,7 @@ import (
 var jwtKey = []byte("API-Products-")
 
 type Claims struct {
-	Id       int64  `json:"id"`
+	Id       string `json:"id"`
 	Username string `json:"username"`
 	Name     string `json:"name"`
 	jwt.StandardClaims

@@ -16,6 +16,7 @@ import (
 func RegistrationEndpoint(c *gin.Context) {
 	//  add some middleware logic here, if needed
 	// Call UserRegistration service function
+	c.Header("Allow", "POST, OPTIONS")
 	switch c.Request.Method {
 	case "POST":
 		UserService.UserRegistration(c)
@@ -24,9 +25,10 @@ func RegistrationEndpoint(c *gin.Context) {
 
 }
 func UserWithParamEndpoint(c *gin.Context) {
+	c.Header("Allow", "GET, PUT, OPTIONS")
 	switch c.Request.Method {
 	case "PUT":
-		// UserService.UserProfileUpdate(response, request)
+		UserService.UserProfileUpdate(c)
 		break
 	case "GET":
 		UserService.GetUserProfile(c)
@@ -35,6 +37,7 @@ func UserWithParamEndpoint(c *gin.Context) {
 }
 
 func LoginEndpoint(c *gin.Context) {
+	c.Header("Allow", "POST, OPTIONS")
 	switch c.Request.Method {
 	case "POST":
 		UserService.LoginService(c)

@@ -2,11 +2,13 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -23,7 +25,7 @@ func (input productDAO) New() (output productDAO) {
 }
 
 func (p productDAO) InsertProduct(inputStruct model.Product) (*mongo.InsertOneResult, error) {
-	collection := config.GetMongoCollection("mydatabase", "products")
+	collection := config.GetMongoCollection("tripatra", "products")
 
 	product := bson.M{
 		"product_name":  inputStruct.Name,
@@ -31,6 +33,7 @@ func (p productDAO) InsertProduct(inputStruct model.Product) (*mongo.InsertOneRe
 		"product_stock": inputStruct.Stock,
 		"created_at":    time.Now(),
 		"updated_at":    time.Now(),
+		"deleted":       false,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -45,7 +48,7 @@ func (p productDAO) InsertProduct(inputStruct model.Product) (*mongo.InsertOneRe
 }
 
 func (p productDAO) GetListProduct() ([]model.Product, error) {
-	collection := config.GetMongoCollection("mydatabase", "products")
+	collection := config.GetMongoCollection("tripatra", "products")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -69,11 +72,13 @@ func (p productDAO) GetListProduct() ([]model.Product, error) {
 	return products, nil
 }
 
-func (p productDAO) GetDetailProduct(id int64) (model.Product, error) {
-	collection := config.GetMongoCollection("mydatabase", "products")
+func (p productDAO) GetDetailProduct(id string) (model.Product, error) {
+	collection := config.GetMongoCollection("tripatra", "products")
 
-	filter := bson.M{"id": id, "deleted": false}
+	objectID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"id": objectID, "deleted": false}
 
+	fmt.Println(filter)
 	var product model.Product
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -87,9 +92,10 @@ func (p productDAO) GetDetailProduct(id int64) (model.Product, error) {
 }
 
 func (p productDAO) UpdateProduct(inputStruct model.Product) (*mongo.UpdateResult, error) {
-	collection := config.GetMongoCollection("mydatabase", "products")
+	collection := config.GetMongoCollection("tripatra", "products")
 
-	filter := bson.M{"id": inputStruct.ID}
+	objectID, _ := primitive.ObjectIDFromHex(inputStruct.ID)
+	filter := bson.M{"id": objectID}
 
 	product := bson.M{
 		"$set": bson.M{
@@ -111,12 +117,17 @@ func (p productDAO) UpdateProduct(inputStruct model.Product) (*mongo.UpdateResul
 	return result, nil
 }
 
-func (p productDAO) DeleteProduct(id int64) (*mongo.UpdateResult, error) {
-	collection := config.GetMongoCollection("mydatabase", "products")
+func (p productDAO) DeleteProduct(id string) (*mongo.UpdateResult, error) {
+	collection := config.GetMongoCollection("tripatra", "products")
 
-	filter := bson.M{"id": id, "deleted": false}
+	objectID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"id": objectID}
 
-	product := bson.M{"$set": bson.M{"deleted": true}}
+	product := bson.M{
+		"$set": bson.M{
+			"deleted":    true,
+			"updated_at": time.Now(),
+		}}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

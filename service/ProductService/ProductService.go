@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/api-skeleton/dto/in"
+	"github.com/api-skeleton/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,4 +21,13 @@ func (input productService) ReadBody(c *gin.Context) (in.ProductRequest, error) 
 		return userRequest, err
 	}
 	return userRequest, nil
+}
+
+func mapToProduct(inputStruct in.ProductRequest) model.Product {
+	return model.Product{
+		ID:    inputStruct.ID,
+		Name:  inputStruct.Name,
+		Price: inputStruct.Price,
+		Stock: inputStruct.Stock,
+	}
 }

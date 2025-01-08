@@ -1,12 +1,10 @@
 package service
 
 import (
-	"strconv"
-
 	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/constanta"
-	"github.com/api-skeleton/constanta/ErrorModel"
 	"github.com/api-skeleton/dao"
+	"github.com/api-skeleton/dto/out"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,27 +14,22 @@ func (input productService) UpdateProductService(c *gin.Context) (err error) {
 	db := config.Connect()
 	defer db.Disconnect(nil)
 
-	idProduct, errParse := strconv.ParseInt(id, 10, 64)
-	if errParse != nil {
-		return errParse
-	}
-
 	productRequest, err := input.ReadBody(c)
 	if err != nil {
 		return err
 	}
 
-	productRequest.ID = idProduct
+	productRequest.ID = id
 
 	reqBody := mapToProduct(productRequest)
 
 	product, err := dao.ProductDAO.UpdateProduct(reqBody)
 	if err != nil {
-		c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, err.Error()))
+		out.ResponseOut(c, err, false, constanta.CodeInternalServerErrorResponse, constanta.ErrorInternalDB)
 		return
 	}
 
-	c.JSON(constanta.CodeSuccessResponse, product)
+	out.ResponseOut(c, product, false, constanta.CodeSuccessResponse, constanta.SuccessEditData)
 
 	return
 
